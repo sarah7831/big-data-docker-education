@@ -1,52 +1,34 @@
 #!/bin/bash
 
-echo "=== Setting up Git Repository for Big Data Docker Project ==="
-
-# Check if git is available
-if ! command -v git &> /dev/null; then
-    echo "Error: Git is not installed or not available."
-    echo "Please install Xcode command line tools first:"
-    echo "  xcode-select --install"
-    exit 1
-fi
+# Git setup script for big data Docker project
+echo "Setting up Git repository for big data Docker images..."
 
 # Initialize git repository if not already done
 if [ ! -d ".git" ]; then
-    echo "Initializing Git repository..."
     git init
+    echo "Git repository initialized"
+else
+    echo "Git repository already exists"
 fi
 
 # Add all files
-echo "Adding files to Git..."
 git add .
 
-# Create initial commit
-echo "Creating initial commit..."
-git commit -m "Initial commit: Big Data Docker Images for Education
+# Create initial commit if no commits exist
+if ! git rev-parse HEAD >/dev/null 2>&1; then
+    git commit -m "Initial commit: Big data Docker images for education"
+    echo "Initial commit created"
+else
+    echo "Repository already has commits"
+fi
 
-- Ubuntu + Java base image with comprehensive exercises
-- Hadoop HDFS + YARN image with MapReduce examples
-- Complete Docker Compose setup for all planned images
-- Comprehensive documentation and quick start guides
-- Progressive learning curriculum for big data technologies
+# Check if remote origin exists
+if ! git remote get-url origin >/dev/null 2>&1; then
+    echo "Please add a remote origin:"
+    echo "git remote add origin <your-repository-url>"
+else
+    echo "Remote origin already configured:"
+    git remote get-url origin
+fi
 
-Features:
-- 5 progressive Docker images (ubuntu-java, hadoop-base, hadoop-ingestion, hadoop-hive, hadoop-spark)
-- Comprehensive exercises and verification scripts
-- Web UI access for all services
-- Volume persistence for data
-- Educational documentation for instructors and students"
-
-echo
-echo "=== Git repository setup complete! ==="
-echo
-echo "Next steps to push to GitHub:"
-echo "1. Create a new repository on GitHub"
-echo "2. Run the following commands:"
-echo "   git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git"
-echo "   git branch -M main"
-echo "   git push -u origin main"
-echo
-echo "Or create and push to GitHub in one step:"
-echo "   gh repo create big-data-docker-education --public --source=. --remote=origin --push"
-echo "   (requires GitHub CLI: brew install gh)"
+echo "Git setup complete!"
