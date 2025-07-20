@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  ubuntu-java:
+    build: ./1-ubuntu-java
+    image: ubuntu-java:latest
+    container_name: ubuntu-java-container
+    ports:
+      - "2222:22"
+    volumes:
+      - ./shared-data:/home/hadoop/shared-data
+    stdin_open: true
+    tty: true
+
+  hadoop-base:
+    build: ./2-hadoop-base
+    image: hadoop-base:latest
+    container_name: hadoop-base-container
+    ports:
+      - "9870:9870"   # HDFS NameNode Web UI
+      - "8088:8088"   # YARN ResourceManager Web UI
+      - "9864:9864"   # HDFS DataNode Web UI
+      - "8042:8042"   # YARN NodeManager Web UI
+      - "19888:19888" # MapReduce Job History Server
+      - "9000:9000"   # HDFS NameNode IPC
+    volumes:
+      - ./shared-data:/home/hadoop/shared-data
+      - hadoop-data:/tmp/hadoop-hadoop
+    stdin_open: true
+    tty: true
+
+  hadoop-ingestion:
+    build: ./3-hadoop-ingestion
+    image: hadoop-ingestion:latest
+    container_name: hadoop-ingestion-container
+    ports:
+      - "9870:9870"
+      - "8088:8088"
+      - "9864:9864"
+      - "8042:8042"
+      - "19888:19888"
+      - "9000:9000"
+    volumes:
+      - ./shared-data:/home/hadoop/shared-data
+      - hadoop-data:/tmp/hadoop-hadoop
+    stdin_open: true
+    tty: true
+
+  hadoop-hive:
+    build: ./4-hadoop-hive
+    image: hadoop-hive:latest
+    container_name: hadoop-hive-container
+    ports:
+      - "9870:9870"
+      - "8088:8088"
+      - "9864:9864"
+      - "8042:8042"
+      - "19888:19888"
+      - "9000:9000"
+      - "10000:10000"  # HiveServer2
+      - "10002:10002"  # Hive Web UI
+    volumes:
+      - ./shared-data:/home/hadoop/shared-data
+      - hadoop-data:/tmp/hadoop-hadoop
+      - hive-data:/opt/hive/warehouse
+    stdin_open: true
+    tty: true
+
+  hadoop-spark:
+    build: ./5-hadoop-spark
+    image: hadoop-spark:latest
+    container_name: hadoop-spark-container
+    ports:
+      - "9870:9870"
+      - "8088:8088"
+      - "9864:9864"
+      - "8042:8042"
+      - "19888:19888"
+      - "9000:9000"
+      - "10000:10000"
+      - "10002:10002"
+      - "4040:4040"    # Spark Web UI
+      - "18080:18080"  # Spark History Server
+      - "7077:7077"    # Spark Master
+    volumes:
+      - ./shared-data:/home/hadoop/shared-data
+      - hadoop-data:/tmp/hadoop-hadoop
+      - hive-data:/opt/hive/warehouse
+      - spark-data:/opt/spark/work
+    stdin_open: true
+    tty: true
+
+volumes:
+  hadoop-data:
+  hive-data:
+  spark-data:
+
+networks:
+  default:
+    name: bigdata-network
