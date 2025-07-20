@@ -13,7 +13,7 @@ ENV FLUME_HOME=/opt/flume
 # Switch to root for installations
 USER root
 
-# Install additional dependencies for data ingestion tools
+# Install database clients
 RUN apt-get update && apt-get install -y \
     mysql-client \
     postgresql-client \
@@ -34,14 +34,15 @@ RUN cd /tmp && \
     mv apache-flume-1.11.0-bin $FLUME_HOME && \
     rm apache-flume-1.11.0-bin.tar.gz
 
-# Download database connectors
+# Download database connectors with updated URLs
 RUN cd $SQOOP_HOME/lib && \
-    wget https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.33/mysql-connector-java-8.0.33.jar && \
-    wget https://repo1.maven.org/maven2/org/postgresql/postgresql/42.6.0/postgresql-42.6.0.jar
+    wget https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.2.0/mysql-connector-j-8.2.0.jar && \
+    wget https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.1/postgresql-42.7.1.jar
 
 # Set ownership and permissions
 RUN chown -R hadoop:hadoop $SQOOP_HOME $FLUME_HOME && \
-    chmod +x $SQOOP_HOME/bin/* $FLUME_HOME/bin/*
+    chmod +x $SQOOP_HOME/bin/* && \
+    chmod +x $FLUME_HOME/bin/*
 
 # Switch back to hadoop user
 USER hadoop
@@ -60,9 +61,6 @@ RUN chmod +x /home/hadoop/scripts/*.sh
 
 # Set working directory
 WORKDIR /home/hadoop
-
-# Expose additional ports for monitoring
-EXPOSE 41414 41415
 
 # Default command
 CMD ["/home/hadoop/scripts/start-ingestion.sh"]
