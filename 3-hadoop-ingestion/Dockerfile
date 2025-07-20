@@ -44,20 +44,19 @@ RUN chown -R hadoop:hadoop $SQOOP_HOME $FLUME_HOME && \
     chmod +x $SQOOP_HOME/bin/* && \
     chmod +x $FLUME_HOME/bin/*
 
-# Switch back to hadoop user
-USER hadoop
-
-# Update PATH environment variable
-ENV PATH=$PATH:$SQOOP_HOME/bin:$FLUME_HOME/bin
-
 # Copy configuration files
 COPY config/sqoop-env.sh $SQOOP_HOME/conf/
 COPY config/flume-env.sh $FLUME_HOME/conf/
 COPY config/flume.conf $FLUME_HOME/conf/
 
-# Copy scripts
-COPY scripts/ /home/hadoop/scripts/
-RUN chmod +x /home/hadoop/scripts/*.sh
+# Copy scripts with correct ownership
+COPY --chown=hadoop:hadoop scripts/ /home/hadoop/scripts/
+
+# Switch back to hadoop user
+USER hadoop
+
+# Update PATH environment variable
+ENV PATH=$PATH:$SQOOP_HOME/bin:$FLUME_HOME/bin
 
 # Set working directory
 WORKDIR /home/hadoop

@@ -2,10 +2,11 @@ FROM hadoop-ingestion:latest
 
 # Maintainer information
 LABEL maintainer="Big Data Professor <professor@university.edu>"
-LABEL description="Hadoop with Hive for data warehousing"
+LABEL description="Hadoop with Hive data warehouse"
 
 # Set environment variables
 ENV HIVE_VERSION=3.1.3
+ENV DERBY_VERSION=10.14.2.0
 ENV HIVE_HOME=/opt/hive
 ENV DERBY_HOME=/opt/derby
 
@@ -30,6 +31,13 @@ RUN cd /tmp && \
 RUN chown -R hadoop:hadoop $HIVE_HOME $DERBY_HOME && \
     chmod +x $HIVE_HOME/bin/*
 
+# Copy configuration files
+COPY config/hive-site.xml $HIVE_HOME/conf/
+COPY config/hive-env.sh $HIVE_HOME/conf/
+
+# Copy scripts with correct ownership
+COPY --chown=hadoop:hadoop scripts/ /home/hadoop/scripts/
+
 # Switch back to hadoop user
 USER hadoop
 
@@ -37,19 +45,8 @@ USER hadoop
 ENV PATH=$PATH:$HIVE_HOME/bin:$DERBY_HOME/bin
 ENV CLASSPATH=$CLASSPATH:$DERBY_HOME/lib/derby.jar:$DERBY_HOME/lib/derbytools.jar
 
-# Copy configuration files
-COPY config/hive-site.xml $HIVE_HOME/conf/
-COPY config/hive-env.sh $HIVE_HOME/conf/
-
-# Copy scripts
-COPY scripts/ /home/hadoop/scripts/
-RUN chmod +x /home/hadoop/scripts/*.sh
-
 # Set working directory
 WORKDIR /home/hadoop
-
-# Expose Hive ports
-EXPOSE 10000 10002
 
 # Default command
 CMD ["/home/hadoop/scripts/start-hive.sh"]
