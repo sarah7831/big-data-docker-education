@@ -1,0 +1,8 @@
+{
+  "name": "Big Data Docker Education",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-20.04",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "postCreateCommand": "echo 'Docker is ready inside Codespaces!'"
+}
